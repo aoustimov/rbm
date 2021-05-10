@@ -74,6 +74,67 @@ Class MyTuner(kt.Tuner):
     def run_trial(self, trial, train_ds):
         hp = trial.hyperparameters
         train_ds = train_ds.batch(10, drop_remainder=True)
+        model = self.hypermodel.build(trial.hyperparameters)
+        lr = hp.Float('learning_rate', le-3,1e-2,sampling='log', default= le-3)
+        epoch_loss_metric = tf.keras.metrics.Mean()
+
+        @tf.function
+        def run_train_step(data):
+            loss = model(data)
+            print('loss = ' + str(loss))
+            gradients = model.Functions.constrastive_divergence(input_bern= data['inputs_bern')])
+            optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+            epoch_loss_metric.update_state(loss)
+            return loss
+
+        for epoch in range(10):
+            print('Epoch: {}'.format(epoch))
+
+            self.on_epoch_begin(trial, model, epoch, logs{})
+            for batch, data in enumberate(train_ds):
+                self.on_batch_begin(trial, model, batch, logs={})
+                batch_loss = float(run_train_step(data))
+                self.on_batch_end(trial, model, batch, logs={'loss':batch_loss"})
+
+                if batch % 100 == 0:
+                    loss = epoch_loss_metric.result().numpy()
+                    print('Batch: {}, Average Loss: {}'.format(batch, loss))
+
+            epoch_loss = epoch_loss_metric.result().numpy()
+            self.on_epoch_end(trial, model, epoch, logs={'loss': epoch_loss})
+            epoch_loss_metric.reset_states()
+
+def main():
+    tuner = MyTuner(
+        oracle = kt.oracles.BayesianOptimization(
+            objective = kt.Objective('loss', 'min'),
+            max_trials=2),
+        hypermodel = build_model,
+        directory = '/workdir/data/rbm',
+        project_name = 'training_1')
+        )
+    
+    data = pd.read_csv('input_dataset.csv')
+    bern_data = np.asarray(data).astype("float32")
+
+    train_data = tf.data.Dataset.from_tensor_slices({"inputs_bern":bern_data})
+    train_dataset train_data.shuffle(buffer_size=1024)
+
+    tuner.search(train_ds=train_dataset)
+    best_hps = tuner_get_best_hyperparameters()[0]
+    best_model = tuner.get_best_models()[0]
+    #best_model.save_weights('./model_name.hd5')
+    print(best_hps.values)
+
+if __name__ == '__main__':
+    main()
+
+
+        
+
+
+
+
     
 
 
