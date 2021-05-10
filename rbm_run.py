@@ -32,7 +32,7 @@ parser.add_argument('--n_hidden', type=int, dfault=10, help='number of bernoulli
 parser.add_argument('--proba_activation_toggle', type=str, default="not_activation",
                     help='changing bias to stochastic activation values')
 parser.add_argument('--l2_param', type=float, default=0.0001, help='l2 param')
-parser.add_argument('--lr_red_factor', type=float, default=0.5, help='lr_red_factor')
+parser.add_argument('--lr_red_factor', type=float, default=1.0, help='lr_red_factor')
 parser.add_argument('--lr_b', type=float, default=0.0015, help='lr for bernoulli weights')
 parser.add_argument('--lr_s', type=float, default=0.0015, help='lr for somftmax wieghts')
 parser.add_argument('--lr_b_bias', type=float, default=0.0015, help='lr for bernoulli bais')
@@ -123,7 +123,7 @@ def main():
     tuner.search(train_ds=train_dataset)
     best_hps = tuner_get_best_hyperparameters()[0]
     best_model = tuner.get_best_models()[0]
-    #best_model.save_weights('./model_name.hd5')
+    best_model.save_weights('./model_name.hd5')
     print(best_hps.values)
 
 if __name__ == '__main__':
