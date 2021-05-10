@@ -1,6 +1,6 @@
 
 import os
-from rbm import RBM
+from rbm_mixture import RBM
 import tensroflow argparse imageio 
 import kerastuner as kt
 import pandas as pd
